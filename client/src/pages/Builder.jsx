@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 // Will implement these components next
 import ResumeForm from '../components/ResumeForm';
 import ResumePreview from '../components/ResumePreview';
@@ -9,11 +9,12 @@ const Builder = () => {
     const { id } = useParams();
     const [resume, setResume] = useState(null);
     const [loading, setLoading] = useState(true);
+    const resumePreviewRef = useRef();
 
     useEffect(() => {
         const fetchResume = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/resume/${id}`);
+                const res = await api.get(`/resume/${id}`);
                 setResume(res.data);
                 setLoading(false);
             } catch (err) {
@@ -26,7 +27,7 @@ const Builder = () => {
 
     const handleUpdate = async (updatedData) => {
         try {
-            await axios.put(`http://localhost:5000/api/resume/${id}`, updatedData);
+            await api.put(`/resume/${id}`, updatedData);
             setResume({ ...resume, ...updatedData });
         } catch (err) {
             console.error("Failed to save", err);
@@ -41,7 +42,10 @@ const Builder = () => {
             <header className="navbar z-10 p-4 flex justify-between items-center" style={{ zIndex: 10, padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 className="text-xl font-bold">{resume.title} <span className="text-sm font-normal text-gray-500">({resume.resumeType})</span></h1>
                 <div>
-                    <button onClick={() => window.print()} className="btn-primary">
+                    <button
+                        onClick={() => resumePreviewRef.current?.downloadPdf()}
+                        className="btn-primary"
+                    >
                         Download PDF
                     </button>
                 </div>
@@ -53,7 +57,7 @@ const Builder = () => {
                 </div>
                 {/* Right Panel: Preview */}
                 <div className="builder-preview">
-                    <ResumePreview resume={resume} layoutMode={resume.layout} />
+                    <ResumePreview ref={resumePreviewRef} resume={resume} layoutMode={resume.layout} />
                 </div>
             </div>
         </div>

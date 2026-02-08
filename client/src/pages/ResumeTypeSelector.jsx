@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 
 const resumeTypes = [
     { name: 'Engineering', description: 'Technical roles, software development, engineering.' },
@@ -19,7 +19,7 @@ const ResumeTypeSelector = () => {
         if (!title) return;
 
         try {
-            const res = await axios.post('http://localhost:5000/api/resume', {
+            const res = await api.post('/resume', {
                 title,
                 resumeType: type
             });
@@ -35,7 +35,7 @@ const ResumeTypeSelector = () => {
         <div className="container py-12">
             <div className="max-w-3xl mx-auto" style={{ maxWidth: '48rem', margin: '0 auto' }}>
                 <h2 className="text-center text-3xl font-extrabold mb-8">
-                    Select Your Resume Type
+                    Select Your Resume Type - (Future Scope)
                 </h2>
                 <div className="grid grid-cols-1 gap-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                     {resumeTypes.map((type) => (

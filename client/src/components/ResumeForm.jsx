@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 
 const ResumeForm = ({ resume, onUpdate }) => {
     const [skillsInput, setSkillsInput] = useState(resume.skills?.join(', ') || '');
@@ -46,7 +46,7 @@ const ResumeForm = ({ resume, onUpdate }) => {
     const handleAnalyze = async () => {
         try {
             console.log("Starting analysis request...");
-            const res = await axios.post('http://localhost:5000/api/resume/analyze', {
+            const res = await api.post('/resume/analyze', {
                 currentData: resume
             });
             console.log("Analysis response:", res.data);
@@ -63,7 +63,7 @@ const ResumeForm = ({ resume, onUpdate }) => {
     const handleGenerate = async () => {
         try {
             // alert('Generating content with AI... This may take a few seconds.');
-            const res = await axios.post('http://localhost:5000/api/resume/generate', {
+            const res = await api.post('/resume/generate', {
                 resumeId: resume._id,
                 currentData: resume // Sending current state so AI knows context
             });
@@ -171,6 +171,59 @@ const ResumeForm = ({ resume, onUpdate }) => {
                             value={edu.year || ''}
                             onChange={(e) => handleEducationChange(index, 'year', e.target.value)}
                         />
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                            <select
+                                value={edu.gradeType || 'CGPA'}
+                                onChange={(e) => handleEducationChange(index, 'gradeType', e.target.value)}
+                                style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px', flex: '1' }}
+                            >
+                                <option value="CGPA">CGPA</option>
+                                <option value="Percentage">Percentage</option>
+                            </select>
+                            <input
+                                type="text"
+                                placeholder={edu.gradeType === 'Percentage' ? 'e.g., 90%' : 'e.g., 9.5'}
+                                value={edu.grade || ''}
+                                onChange={(e) => handleEducationChange(index, 'grade', e.target.value)}
+                                style={{ flex: '2' }}
+                            />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Marksheet Link (Optional)"
+                            value={edu.marksheet || ''}
+                            onChange={(e) => handleEducationChange(index, 'marksheet', e.target.value)}
+                            style={{ marginTop: '0.5rem' }}
+                        />
+                        <div style={{ marginTop: '0.25rem', fontSize: '0.875rem' }}>
+                            <label style={{ cursor: 'pointer', color: '#4f46e5', fontWeight: '500' }}>
+                                {edu.marksheet && edu.marksheet.includes('/uploads/') ? 'Change Marksheet' : 'Upload Marksheet'}
+                                <input
+                                    type="file"
+                                    accept="image/*,application/pdf"
+                                    style={{ display: 'none' }}
+                                    onChange={async (e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            const file = e.target.files[0];
+                                            const formData = new FormData();
+                                            formData.append('file', file);
+                                            try {
+                                                const res = await api.post('/upload', formData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                                });
+                                                handleEducationChange(index, 'marksheet', res.data.url);
+                                            } catch (err) {
+                                                console.error('Upload failed', err);
+                                                alert('Failed to upload file');
+                                            }
+                                        }
+                                    }}
+                                />
+                            </label>
+                            {edu.marksheet && edu.marksheet.includes('/uploads/') && (
+                                <span style={{ marginLeft: '0.5rem', color: '#059669' }}>✓ File Uploaded</span>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
@@ -385,7 +438,7 @@ const ResumeForm = ({ resume, onUpdate }) => {
                                             const formData = new FormData();
                                             formData.append('file', file);
                                             try {
-                                                const res = await axios.post('http://localhost:5000/api/upload', formData, {
+                                                const res = await api.post('/upload', formData, {
                                                     headers: { 'Content-Type': 'multipart/form-data' }
                                                 });
                                                 const newCert = [...resume.certifications];

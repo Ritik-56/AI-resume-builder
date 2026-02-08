@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
                         setUser(null);
                     } else {
                         // Set default headers
-                        axios.defaults.headers.common['x-auth-token'] = token;
+                        api.defaults.headers.common['x-auth-token'] = token;
                         // Fetch user data (optional, or just use decoded data for basic info)
                         // For now, let's just assume valid if token is valid and set user from decoded
                         // Ideally we stick to server validation, but for quick load:
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
                         // Verify with server (better approach)
                         try {
-                            const res = await axios.get('http://localhost:5000/api/auth/user');
+                            const res = await api.get('/auth/user');
                             setUser(res.data);
                         } catch (err) {
                             console.error("Token verification failed", err);
@@ -47,33 +47,33 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+        const res = await api.post('/auth/login', { email, password });
         localStorage.setItem('token', res.data.token);
-        axios.defaults.headers.common['x-auth-token'] = res.data.token;
+        api.defaults.headers.common['x-auth-token'] = res.data.token;
 
         const decoded = jwtDecode(res.data.token);
         // Fetch full user details if needed or just use ID
         // setUser(decoded.user);
 
         // Let's fetch the full user object to have the name
-        const userRes = await axios.get('http://localhost:5000/api/auth/user');
+        const userRes = await api.get('/auth/user');
         setUser(userRes.data);
         return true;
     };
 
     const register = async (name, email, password) => {
-        const res = await axios.post('http://localhost:5000/api/auth/register', { name, email, password });
+        const res = await api.post('/auth/register', { name, email, password });
         localStorage.setItem('token', res.data.token);
-        axios.defaults.headers.common['x-auth-token'] = res.data.token;
+        api.defaults.headers.common['x-auth-token'] = res.data.token;
 
-        const userRes = await axios.get('http://localhost:5000/api/auth/user');
+        const userRes = await api.get('/auth/user');
         setUser(userRes.data);
         return true;
     };
 
     const logout = () => {
         localStorage.removeItem('token');
-        delete axios.defaults.headers.common['x-auth-token'];
+        delete api.defaults.headers.common['x-auth-token'];
         setUser(null);
     };
 

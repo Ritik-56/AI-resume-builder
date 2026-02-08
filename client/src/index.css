@@ -1,4 +1,6 @@
 /* Basic Reset & Typography */
+@import "tailwindcss";
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f3f4f6;
@@ -184,7 +186,8 @@ button {
 .builder-preview {
   width: 50%;
   padding: 2rem;
-  background-color: #e5e5e5;
+  background-color: white;
+  /* Changed from #e5e5e5 */
   overflow-y: auto;
   display: flex;
   justify-content: center;
@@ -194,7 +197,6 @@ button {
 @media print {
   @page {
     margin: 0;
-    /* Removes browser headers/footers */
     size: auto;
   }
 
@@ -202,41 +204,86 @@ button {
     visibility: hidden;
   }
 
-  .resume-preview-page,
-  .resume-preview-page * {
+  .resume-preview-container,
+  .resume-preview-container * {
     visibility: visible;
   }
 
-  .resume-preview-page {
+  .resume-preview-container {
     position: absolute;
     left: 0;
     top: 0;
     width: 210mm;
-    min-height: 297mm;
-    /* Ensure it takes full page */
     margin: 0;
     padding: 0;
-    /* Remove padding if handled by page margin */
-    box-shadow: none !important;
     background-color: white;
-    /* Prevent overflow causing extra pages */
-    overflow: hidden;
+    transform: none !important;
+    /* Reset any scaling for print */
   }
 
-  /* Reset body/html height to prevent scroll causing extra pages */
+  .resume-page {
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+  }
+
+  /* Reset body/html height */
   html,
   body {
     height: 100%;
     margin: 0 !important;
     padding: 0 !important;
-    overflow: hidden;
   }
 
   /* Hide specific UI elements definitively */
   .navbar,
   .builder-form,
   .btn-primary,
-  .no-print {
+  .no-print,
+  .download-btn {
     display: none !important;
   }
+}
+
+/* Resume Page Styles */
+.resume-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Removed background-color: #525659; */
+  padding: 1rem;
+  gap: 1rem;
+  width: 100%;
+  overflow: visible;
+  /* Allow scaling to work properly */
+}
+
+/* Container for scaling */
+#resume-export-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  /* Transform origin top center for better scaling behavior */
+  transform-origin: top center;
+}
+
+.resume-page {
+  position: relative;
+  background-color: white;
+  width: 210mm;
+  min-height: 297mm;
+  height: 297mm;
+  box-shadow: 0 0px 5px rgba(0, 0, 0, 0.1);
+  /* Lighter shadow */
+  color: black;
+  box-sizing: border-box;
+  font-family: 'Times New Roman', serif;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.resume-page.compact-mode {
+  font-size: 0.8rem;
+  line-height: 1.4;
 }

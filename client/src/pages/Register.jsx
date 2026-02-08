@@ -24,8 +24,10 @@ const Register = () => {
     return (
         <div className="auth-container">
             <div className="auth-box">
-                <div className="text-center">
-                    <h2 className="text-3xl font-bold mb-6">
+
+                <div className="text-center mb-6">
+                    <img src="/vite.svg" alt="ResuAI Logo" className="h-12 w-12 mx-auto mb-2" />
+                    <h2 className="text-3xl font-bold text-gray-900">
                         Create your account
                     </h2>
                 </div>
